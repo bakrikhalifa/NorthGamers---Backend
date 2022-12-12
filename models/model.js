@@ -25,3 +25,18 @@ exports.getReviewByIDData = (review_id) => {
       }
     });
 };
+
+exports.getCommentsByIDData = (review_id) => {
+  return db
+    .query(
+      `SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, comments.review_id FROM comments JOIN reviews ON reviews.review_id = comments.review_id WHERE reviews.review_id = $1 AND comments.review_id = $1 ORDER BY comments.created_at desc;`,
+      [review_id]
+    )
+    .then(({ rows: comments }) => {
+      if (comments.length === 0) {
+        return Promise.reject({ status: 400, msg: "Bad Request" });
+      } else {
+        return comments;
+      }
+    });
+};

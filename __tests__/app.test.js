@@ -111,3 +111,47 @@ describe('GET: "/api/reviews/:review_id"', () => {
       });
   });
 });
+
+describe("GET /api/reviews/:review_id/comments", () => {
+  test("200: should return comments in correct order", () => {
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then(({ body: comments }) => {
+        expect(comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: should return comments in correct format", () => {
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then(({ body: comments }) => {
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            review_id: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("400: valid id format but id does not exist", () => {
+    return request(app)
+      .get("/api/reviews/20/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid format id", () => {
+    return request(app)
+      .get("/api/reviews/banana/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});

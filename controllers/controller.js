@@ -2,6 +2,7 @@ const {
   getCategoriesData,
   getReviewsData,
   getReviewByIDData,
+  getCommentsByIDData,
 } = require("../models/model");
 
 exports.getCategories = (req, res) => {
@@ -21,6 +22,17 @@ exports.getReviewById = (req, res, next) => {
   getReviewByIDData(review_id)
     .then((review) => {
       res.status(200).send(review);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getCommentsByID = (req, res, next) => {
+  const { review_id } = req.params;
+  getCommentsByIDData(review_id)
+    .then((comments) => {
+      res.status(200).send(comments);
     })
     .catch((err) => {
       next(err);
