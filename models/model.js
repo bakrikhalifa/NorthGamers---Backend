@@ -7,5 +7,9 @@ exports.getCategoriesData = () => {
 };
 
 exports.getReviewsData = () => {
-    return db.qu
-}
+  return db
+    .query(`SELECT * FROM reviews ORDER BY created_at desc;`)
+    .then(({ rows: reviews }) => {
+      return reviews;
+    });
+};

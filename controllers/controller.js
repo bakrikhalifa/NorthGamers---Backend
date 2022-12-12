@@ -7,5 +7,7 @@ exports.getCategories = (req, res, next) => {
 };
 
 exports.getReviews = (req, res, next) => {
-    getReviewsData()
-}
+  getReviewsData().then((reviews) => {
+    res.status(200).send(reviews);
+  });
+};
