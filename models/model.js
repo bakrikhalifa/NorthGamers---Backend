@@ -18,7 +18,6 @@ exports.getReviewByIDData = (review_id) => {
   return db
     .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
     .then(({ rows: review }) => {
-        console.log(review[0])
       if (review[0] === undefined) {
         return Promise.reject({ status: 400, msg: "Bad Request" });
       } else {
