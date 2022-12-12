@@ -7,6 +7,17 @@ const testData = require("../db/data/test-data");
 afterAll(() => db.end());
 beforeEach(() => seed(testData));
 
+describe("Test for incorrect path", () => {
+    test("404: non existant path", () => {
+      return request(app)
+        .get("/aps")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Path not found");
+        });
+    });
+  });
+
 describe("GET api/categories", () => {
   test("200: should succesfully get categories", () => {
     return request(app)
