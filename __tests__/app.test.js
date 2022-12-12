@@ -19,6 +19,7 @@ describe("GET api/categories", () => {
             description: expect.any(String),
           });
         });
+        expect(categories.length).toBe(4)
       });
   });
 });
