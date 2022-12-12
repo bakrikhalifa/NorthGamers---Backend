@@ -1,11 +1,11 @@
-const express = require('express')
-const app = express()
-const {getCategories} = require('./controllers/controller')
+const express = require("express");
+const app = express();
+const { getCategories } = require("./controllers/controller");
 
-app.get('/api/categories', getCategories)
+app.get("/api/categories", getCategories);
 
-app.all('*', (req, res, next) => {
-    res.status(404).send({msg: "Path not found"})
-})
+app.all("*", (req, res, next) => {
+  res.status(404).send({ msg: "Path not found" });
+});
 
-module.exports = app
+module.exports = app;
