@@ -5,6 +5,7 @@ exports.getCategoriesData = () => {
     return categories;
   });
 };
+<<<<<<< HEAD
 
 exports.getReviewsData = () => {
   return db
@@ -13,3 +14,5 @@ exports.getReviewsData = () => {
       return reviews;
     });
 };
+=======
+>>>>>>> main

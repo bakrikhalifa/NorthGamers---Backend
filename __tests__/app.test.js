@@ -7,6 +7,20 @@ const testData = require("../db/data/test-data");
 afterAll(() => db.end());
 beforeEach(() => seed(testData));
 
+<<<<<<< HEAD
+=======
+describe("Test for incorrect path", () => {
+    test.only("404: non existant path", () => {
+      return request(app)
+        .get("/aps")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Path not found");
+        });
+    });
+  });
+
+>>>>>>> main
 describe("GET api/categories", () => {
   test("200: should succesfully get categories", () => {
     return request(app)
@@ -19,6 +33,7 @@ describe("GET api/categories", () => {
             description: expect.any(String),
           });
         });
+<<<<<<< HEAD
         expect(categories.length).toBe(4);
       });
   });
@@ -58,6 +73,9 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: reviews }) => {
         expect(reviews.length).toBe(13);
+=======
+        expect(categories.length).toBe(4)
+>>>>>>> main
       });
   });
 });
