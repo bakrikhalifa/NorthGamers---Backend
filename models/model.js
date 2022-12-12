@@ -5,3 +5,11 @@ exports.getCategoriesData = () => {
     return categories;
   });
 };
+
+exports.getReviewsData = () => {
+  return db
+    .query(`SELECT * FROM reviews ORDER BY created_at desc;`)
+    .then(({ rows: reviews }) => {
+      return reviews;
+    });
+};
