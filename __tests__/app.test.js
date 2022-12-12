@@ -8,15 +8,15 @@ afterAll(() => db.end());
 beforeEach(() => seed(testData));
 
 describe("Test for incorrect path", () => {
-    test("404: non existant path", () => {
-      return request(app)
-        .get("/aps")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Path not found");
-        });
-    });
+  test("404: non existant path", () => {
+    return request(app)
+      .get("/aps")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
   });
+});
 
 describe("GET api/categories", () => {
   test("200: should succesfully get categories", () => {
@@ -69,6 +69,45 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: reviews }) => {
         expect(reviews.length).toBe(13);
+      });
+  });
+});
+
+describe('GET: "/api/reviews/:review_id"', () => {
+  test("200: should get review by correct review id", () => {
+    return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then(({ body: review }) => {
+        expect(review).toEqual({
+          review_id: 1,
+          title: "Agricola",
+          category: "euro game",
+          designer: "Uwe Rosenberg",
+          owner: "mallionaire",
+          review_body: "Farmyard fun!",
+          review_img_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          created_at: "2021-01-18T10:00:20.514Z",
+          votes: 1,
+        });
+      });
+  });
+
+  test("400: correct id format but invalid id", () => {
+    return request(app)
+      .get("/api/reviews/20")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: incorrect id format", () => {
+    return request(app)
+      .get("/api/reviews/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });
