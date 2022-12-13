@@ -2,7 +2,12 @@ const {
   getCategoriesData,
   getReviewsData,
   getReviewByIDData,
+  getCommentsByIDData,
+  postCommentByID,
+  postCommentByIDData
 } = require("../models/model");
+
+const { checkIfCommentsExist } = require("../models/models.reviews");
 
 exports.getCategories = (req, res) => {
   getCategoriesData().then((categories) => {
@@ -25,4 +30,25 @@ exports.getReviewById = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getCommentsByID = (req, res, next) => {
+  const { review_id } = req.params;
+  const promises = [
+    getCommentsByIDData(review_id),
+    checkIfCommentsExist(review_id),
+  ];
+  Promise.all(promises)
+    .then(([comments]) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postCommentByID = (req, res, next) => {
+    const newComment = req.body
+  const { review_id } = req.params;
+  postCommentByIDData(review_id, newComment);
 };

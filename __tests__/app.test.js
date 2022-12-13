@@ -86,20 +86,19 @@ describe('GET: "/api/reviews/:review_id"', () => {
           designer: expect.any(String),
           owner: expect.any(String),
           review_body: expect.any(String),
-          review_img_url:
-          expect.any(String),
+          review_img_url: expect.any(String),
           created_at: expect.any(String),
           votes: expect.any(Number),
         });
       });
   });
 
-  test("400: correct id format but invalid id", () => {
+  test("404: correct id format but invalid id", () => {
     return request(app)
       .get("/api/reviews/20")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("400: incorrect id format", () => {
@@ -111,3 +110,70 @@ describe('GET: "/api/reviews/:review_id"', () => {
       });
   });
 });
+
+describe("GET /api/reviews/:review_id/comments", () => {
+  test("200: should return comments in correct order", () => {
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("200: should return comments in correct format", () => {
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        body.comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            review_id: 2,
+          });
+        });
+      });
+  });
+  test("200: valid article but comments do not exist for said article", () => {
+    return request(app)
+      .get("/api/reviews/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(0);
+      });
+  });
+
+  test("404: valid id format but id does not exist", () => {
+    return request(app)
+      .get("/api/reviews/20/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("400: invalid format id", () => {
+    return request(app)
+      .get("/api/reviews/banana/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+// describe('POST: /api/reviews/:review_id/comments', () => {
+//     test('200: get posted comment', () => {
+        
+//         return request(app)
+//         .post('/api/reviews/3/comments')
+//         .send({ body: "awesome game, love it",
+//     username: 'bakrikhalifa123'})
+//     .expect(200)
+//     .then(({body: review}) => {
+//         expect(review)
+//     })
+//     });
+// });
