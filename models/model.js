@@ -19,7 +19,7 @@ exports.getReviewByIDData = (review_id) => {
     .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
     .then(({ rows: review }) => {
       if (review[0] === undefined) {
-        return Promise.reject({ status: 400, msg: "Bad Request" });
+        return Promise.reject({ status: 404, msg: "Bad Request" });
       } else {
         return review[0];
       }
@@ -33,10 +33,8 @@ exports.getCommentsByIDData = (review_id) => {
       [review_id]
     )
     .then(({ rows: comments }) => {
-      if (comments.length === 0) {
-        return Promise.reject({ status: 400, msg: "Bad Request" });
-      } else {
+      
         return comments;
-      }
+      
     });
 };

@@ -16,8 +16,8 @@ app.get("/api/reviews/:review_id", getReviewById);
 app.get("/api/reviews/:review_id/comments", getCommentsByID);
 
 app.use((err, req, res, next) => {
-  if (err.status === 400) {
-    res.status(400).send({ msg: "Bad Request" });
+  if (err.msg !== undefined) {
+    res.status(404).send({ msg: "Bad Request" });
   } else {
     next(err);
   }

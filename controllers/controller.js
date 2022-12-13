@@ -5,6 +5,8 @@ const {
   getCommentsByIDData,
 } = require("../models/model");
 
+const {checkIfCommentsExist} = require("../models/models.reviews")
+
 exports.getCategories = (req, res) => {
   getCategoriesData().then((categories) => {
     res.status(200).send(categories);
@@ -29,10 +31,11 @@ exports.getReviewById = (req, res, next) => {
 };
 
 exports.getCommentsByID = (req, res, next) => {
-  const { review_id } = req.params;
-  getCommentsByIDData(review_id)
-    .then((comments) => {
-      res.status(200).send(comments);
+    const { review_id } = req.params;
+    const promises = [getCommentsByIDData(review_id), checkIfCommentsExist(review_id)]
+  Promise.all(promises)
+    .then(([comments]) => {
+      res.status(200).send({comments});
     })
     .catch((err) => {
       next(err);

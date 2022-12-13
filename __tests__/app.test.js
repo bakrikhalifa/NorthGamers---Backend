@@ -79,25 +79,24 @@ describe('GET: "/api/reviews/:review_id"', () => {
       .get("/api/reviews/1")
       .expect(200)
       .then(({ body: review }) => {
-        expect(review).toEqual({
+        expect(review).toMatchObject({
           review_id: 1,
-          title: "Agricola",
-          category: "euro game",
-          designer: "Uwe Rosenberg",
-          owner: "mallionaire",
-          review_body: "Farmyard fun!",
-          review_img_url:
-            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
-          created_at: "2021-01-18T10:00:20.514Z",
-          votes: 1,
+          title: expect.any(String),
+          category: expect.any(String),
+          designer: expect.any(String),
+          owner: expect.any(String),
+          review_body: expect.any(String),
+          review_img_url: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
         });
       });
   });
 
-  test("400: correct id format but invalid id", () => {
+  test("404: correct id format but invalid id", () => {
     return request(app)
       .get("/api/reviews/20")
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
       });
@@ -117,31 +116,40 @@ describe("GET /api/reviews/:review_id/comments", () => {
     return request(app)
       .get("/api/reviews/2/comments")
       .expect(200)
-      .then(({ body: comments }) => {
-        expect(comments).toBeSortedBy("created_at", { descending: true });
+      .then(({ body }) => {
+        expect(body.comments).toBeSortedBy("created_at", { descending: true });
       });
   });
   test("200: should return comments in correct format", () => {
     return request(app)
       .get("/api/reviews/2/comments")
       .expect(200)
-      .then(({ body: comments }) => {
-        comments.forEach((comment) => {
+      .then(({ body }) => {
+        body.comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
             votes: expect.any(Number),
             created_at: expect.any(String),
             author: expect.any(String),
             body: expect.any(String),
-            review_id: expect.any(Number),
+            review_id: 2,
           });
         });
       });
   });
-  test("400: valid id format but id does not exist", () => {
+  test("200: valid article but comments do not exist for said article", () => {
+    return request(app)
+      .get("/api/reviews/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(0);
+      });
+  });
+
+  test("404: valid id format but id does not exist", () => {
     return request(app)
       .get("/api/reviews/20/comments")
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
       });
