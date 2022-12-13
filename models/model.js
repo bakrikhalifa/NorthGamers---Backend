@@ -51,9 +51,20 @@ exports.postCommentByIDData = (review_id, newComment) => {
 };
 
 exports.patchReviewByIDData = (review_id, updatedReviewBody) => {
-    return db.query(`UPDATE reviews
+  return db
+    .query(
+      `UPDATE reviews
     SET votes = votes + $1
-    WHERE review_id = $2 RETURNING*;`, [updatedReviewBody.inc_votes, review_id]).then(({rows: updatedReview}) => {
-        return updatedReview[0]
-    })
-}
+    WHERE review_id = $2 RETURNING*;`,
+      [updatedReviewBody.inc_votes, review_id]
+    )
+    .then(({ rows: updatedReview }) => {
+      return updatedReview[0];
+    });
+};
+
+exports.getUsersData = () => {
+  return db.query(`SELECT * FROM users;`).then(({ rows: users }) => {
+    return users;
+  });
+};
