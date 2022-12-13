@@ -8,15 +8,15 @@ afterAll(() => db.end());
 beforeEach(() => seed(testData));
 
 describe("Test for incorrect path", () => {
-    test("404: non existant path", () => {
-      return request(app)
-        .get("/aps")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("Path not found");
-        });
-    });
+  test("404: non existant path", () => {
+    return request(app)
+      .get("/aps")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Path not found");
+      });
   });
+});
 
 describe("GET api/categories", () => {
   test("200: should succesfully get categories", () => {
@@ -69,6 +69,45 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: reviews }) => {
         expect(reviews.length).toBe(13);
+      });
+  });
+});
+
+describe('GET: "/api/reviews/:review_id"', () => {
+  test("200: should get review by correct review id", () => {
+    return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then(({ body: review }) => {
+        expect(review).toMatchObject({
+          review_id: 1,
+          title: expect.any(String),
+          category: expect.any(String),
+          designer: expect.any(String),
+          owner: expect.any(String),
+          review_body: expect.any(String),
+          review_img_url:
+          expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+        });
+      });
+  });
+
+  test("400: correct id format but invalid id", () => {
+    return request(app)
+      .get("/api/reviews/20")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: incorrect id format", () => {
+    return request(app)
+      .get("/api/reviews/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });
