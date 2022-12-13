@@ -38,7 +38,14 @@ exports.getCommentsByIDData = (review_id) => {
 };
 
 exports.postCommentByIDData = (review_id, newComment) => {
-    console.log(newComment)
-  
-    return db.query(``)
-}
+  return db
+    .query(
+      `INSERT INTO comments (body, review_id, author)
+        VALUES ($1, $2, $3)
+        RETURNING*;`,
+      [newComment.body, review_id, newComment.username]
+    )
+    .then(({ rows: newComment }) => {
+      return newComment[0];
+    });
+};

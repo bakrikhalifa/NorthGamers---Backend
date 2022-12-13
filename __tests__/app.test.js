@@ -164,16 +164,59 @@ describe("GET /api/reviews/:review_id/comments", () => {
   });
 });
 
-// describe('POST: /api/reviews/:review_id/comments', () => {
-//     test('200: get posted comment', () => {
-        
-//         return request(app)
-//         .post('/api/reviews/3/comments')
-//         .send({ body: "awesome game, love it",
-//     username: 'bakrikhalifa123'})
-//     .expect(200)
-//     .then(({body: review}) => {
-//         expect(review)
-//     })
-//     });
-// });
+describe("POST: /api/reviews/:review_id/comments", () => {
+  test("201: get posted comment", () => {
+    return request(app)
+      .post("/api/reviews/3/comments")
+      .send({ username: "mallionaire", body: "This game is awesome!" })
+      .expect(201)
+      .then(({ body: comment }) => {
+        expect(comment).toMatchObject({
+          comment_id: expect.any(Number),
+          body: "This game is awesome!",
+          review_id: 3,
+          author: "mallionaire",
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400: valid review id format but id does not exist", () => {
+    return request(app)
+      .post("/api/reviews/30/comments")
+      .send({ username: "happyamy2016", body: "This game is awesome!" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: invalid review id format", () => {
+    return request(app)
+      .post("/api/reviews/banana/comments")
+      .send({ username: "happyamy2016", body: "This game is awesome!" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: incorrect keys on req body", () => {
+    return request(app)
+      .post("/api/reviews/banana/comments")
+      .send({ user: "happyamy2016", object: "This game is awesome!" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: invalid value on request body", () => {
+    return request(app)
+      .post("/api/reviews/3/comments")
+      .send({ username: 10, body: 10 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
