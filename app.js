@@ -5,7 +5,10 @@ const {
   getReviews,
   getReviewById,
   getCommentsByID,
+  postCommentByID
 } = require("./controllers/controller");
+
+app.use(express.json());
 
 app.get("/api/categories", getCategories);
 
@@ -15,14 +18,20 @@ app.get("/api/reviews/:review_id", getReviewById);
 
 app.get("/api/reviews/:review_id/comments", getCommentsByID);
 
+app.post("/api/reviews/:review_id/comments", postCommentByID);
+
+
+// custom error
 app.use((err, req, res, next) => {
   if (err.msg !== undefined) {
-    res.status(404).send({ msg: "Bad Request" });
+    res.status(404).send({ msg: "Not Found" });
   } else {
     next(err);
   }
 });
 
+
+// psql error
 app.use((err, req, res, next) => {
   if (err.code === "22P02") {
     res.status(400).send({ msg: "Bad Request" });
@@ -31,6 +40,7 @@ app.use((err, req, res, next) => {
   }
 });
 
+//incorrect path error
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Path not found" });
 });

@@ -19,7 +19,7 @@ exports.getReviewByIDData = (review_id) => {
     .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
     .then(({ rows: review }) => {
       if (review[0] === undefined) {
-        return Promise.reject({ status: 404, msg: "Bad Request" });
+        return Promise.reject({ status: 404, msg: "Not Found" });
       } else {
         return review[0];
       }
@@ -33,8 +33,12 @@ exports.getCommentsByIDData = (review_id) => {
       [review_id]
     )
     .then(({ rows: comments }) => {
-      
-        return comments;
-      
+      return comments;
     });
 };
+
+exports.postCommentByIDData = (review_id, newComment) => {
+    console.log(newComment)
+  
+    return db.query(``)
+}

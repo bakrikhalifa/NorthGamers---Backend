@@ -98,7 +98,7 @@ describe('GET: "/api/reviews/:review_id"', () => {
       .get("/api/reviews/20")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("400: incorrect id format", () => {
@@ -151,7 +151,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
       .get("/api/reviews/20/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("400: invalid format id", () => {
@@ -163,3 +163,17 @@ describe("GET /api/reviews/:review_id/comments", () => {
       });
   });
 });
+
+// describe('POST: /api/reviews/:review_id/comments', () => {
+//     test('200: get posted comment', () => {
+        
+//         return request(app)
+//         .post('/api/reviews/3/comments')
+//         .send({ body: "awesome game, love it",
+//     username: 'bakrikhalifa123'})
+//     .expect(200)
+//     .then(({body: review}) => {
+//         expect(review)
+//     })
+//     });
+// });
