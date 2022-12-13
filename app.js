@@ -5,7 +5,7 @@ const {
   getReviews,
   getReviewById,
   getCommentsByID,
-  postCommentByID,
+  postCommentByID, patchReviewByID
 } = require("./controllers/controller");
 
 app.use(express.json());
@@ -20,6 +20,8 @@ app.get("/api/reviews/:review_id/comments", getCommentsByID);
 
 app.post("/api/reviews/:review_id/comments", postCommentByID);
 
+app.patch("/api/reviews/:review_id", patchReviewByID)
+
 // custom error
 app.use((err, req, res, next) => {
   if (err.msg !== undefined) {
@@ -31,8 +33,7 @@ app.use((err, req, res, next) => {
 
 // psql error
 app.use((err, req, res, next) => {
-  console.log(err);
-  if (err.code === "22P02" || err.code === "23503") {
+  if (err.code === "22P02" || err.code === "23503" || err.code === "23502") {
     res.status(400).send({ msg: "Bad Request" });
   } else {
     next(err);

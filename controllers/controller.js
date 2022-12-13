@@ -5,6 +5,7 @@ const {
   getCommentsByIDData,
   postCommentByID,
   postCommentByIDData,
+  patchReviewByIDData,
 } = require("../models/model");
 
 const { checkIfCommentsExist } = require("../models/models.reviews");
@@ -61,4 +62,20 @@ exports.postCommentByID = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.patchReviewByID = (req, res, next) => {
+  const updatedReviewBody = req.body;
+  const { review_id } = req.params;
+  const promises = [
+    patchReviewByIDData(review_id, updatedReviewBody),
+    checkIfCommentsExist(review_id),
+  ];
+
+  Promise.all(promises)
+  .then(([updatedReview]) => {
+    res.status(200).send(updatedReview);
+  }).catch(err => {
+    next(err)
+  })
 };

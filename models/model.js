@@ -49,3 +49,11 @@ exports.postCommentByIDData = (review_id, newComment) => {
       return newComment[0];
     });
 };
+
+exports.patchReviewByIDData = (review_id, updatedReviewBody) => {
+    return db.query(`UPDATE reviews
+    SET votes = votes + $1
+    WHERE review_id = $2 RETURNING*;`, [updatedReviewBody.inc_votes, review_id]).then(({rows: updatedReview}) => {
+        return updatedReview[0]
+    })
+}
