@@ -4,7 +4,7 @@ const {
   getReviewByIDData,
   getCommentsByIDData,
   postCommentByID,
-  postCommentByIDData
+  postCommentByIDData,
 } = require("../models/model");
 
 const { checkIfCommentsExist } = require("../models/models.reviews");
@@ -48,7 +48,14 @@ exports.getCommentsByID = (req, res, next) => {
 };
 
 exports.postCommentByID = (req, res, next) => {
-    const newComment = req.body
+  const newComment = req.body;
   const { review_id } = req.params;
-  postCommentByIDData(review_id, newComment);
+
+  postCommentByIDData(review_id, newComment)
+    .then((newComment) => {
+      res.status(201).send(newComment);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
