@@ -51,9 +51,17 @@ exports.postCommentByIDData = (review_id, newComment) => {
 };
 
 exports.patchReviewByIDData = (review_id, updatedReviewBody) => {
-    return db.query(`UPDATE reviews
+  return db
+    .query(
+      `UPDATE reviews
     SET votes = votes + $1
-    WHERE review_id = $2 RETURNING*;`, [updatedReviewBody.inc_votes, review_id]).then(({rows: updatedReview}) => {
-        return updatedReview[0]
-    })
-}
+    WHERE review_id = $2 RETURNING*;`,
+      [updatedReviewBody.inc_votes, review_id]
+    )
+    .then(({ rows: updatedReview }) => {
+      if (updatedReview.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+      return updatedReview[0];
+    });
+};
