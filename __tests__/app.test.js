@@ -229,3 +229,80 @@ describe("POST: /api/reviews/:review_id/comments", () => {
       });
   });
 });
+
+describe("PATCH: /api/reviews/:review_id", () => {
+  test("200: should return updated review if req body wants to add", () => {
+    return request(app)
+      .patch("/api/reviews/3")
+      .send({ inc_votes: 2 })
+      .expect(200)
+      .then(({ body: updatedReview }) => {
+        expect(updatedReview).toMatchObject({
+          review_id: 3,
+          title: expect.any(String),
+          category: expect.any(String),
+          designer: expect.any(String),
+          owner: expect.any(String),
+          review_body: expect.any(String),
+          review_img_url: expect.any(String),
+          created_at: expect.any(String),
+          votes: 7,
+        });
+      });
+  });
+  test("200: should return updated review if req body wants to subtract", () => {
+    return request(app)
+      .patch("/api/reviews/3")
+      .send({ inc_votes: -1 })
+      .expect(200)
+      .then(({ body: updatedReview }) => {
+        expect(updatedReview).toMatchObject({
+          review_id: 3,
+          title: expect.any(String),
+          category: expect.any(String),
+          designer: expect.any(String),
+          owner: expect.any(String),
+          review_body: expect.any(String),
+          review_img_url: expect.any(String),
+          created_at: expect.any(String),
+          votes: 4,
+        });
+      });
+  });
+  test("404: valid review id format but id does not exist ", () => {
+    return request(app)
+      .patch("/api/reviews/20")
+      .send({ inc_votes: 2 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("400: invalid review id format ", () => {
+    return request(app)
+      .patch("/api/reviews/banana")
+      .send({ inc_votes: 2 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("404: incorrect key on req body ", () => {
+    return request(app)
+      .patch("/api/reviews/3")
+      .send({ votes: 2 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("400: incorrect value on req body ", () => {
+    return request(app)
+      .patch("/api/reviews/3")
+      .send({ inc_votes: "Ten" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
