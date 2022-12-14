@@ -52,12 +52,9 @@ exports.getCommentsByID = (req, res, next) => {
 exports.postCommentByID = (req, res, next) => {
   const newComment = req.body;
   const { review_id } = req.params;
-  const promises = [
-    postCommentByIDData(review_id, newComment),
-    checkIfCommentsExist(review_id),
-  ];
-  Promise.all(promises)
-    .then(([newComment]) => {
+
+  postCommentByIDData(review_id, newComment)
+    .then((newComment) => {
       res.status(201).send(newComment);
     })
     .catch((err) => {
@@ -68,13 +65,9 @@ exports.postCommentByID = (req, res, next) => {
 exports.patchReviewByID = (req, res, next) => {
   const updatedReviewBody = req.body;
   const { review_id } = req.params;
-  const promises = [
-    patchReviewByIDData(review_id, updatedReviewBody),
-    checkIfCommentsExist(review_id),
-  ];
 
-  Promise.all(promises)
-    .then(([updatedReview]) => {
+  patchReviewByIDData(review_id, updatedReviewBody)
+    .then((updatedReview) => {
       res.status(200).send(updatedReview);
     })
     .catch((err) => {
