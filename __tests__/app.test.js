@@ -181,13 +181,13 @@ describe("POST: /api/reviews/:review_id/comments", () => {
         });
       });
   });
-  test("400: valid review id format but id does not exist", () => {
+  test("404: valid review id format but id does not exist", () => {
     return request(app)
       .post("/api/reviews/30/comments")
       .send({ username: "happyamy2016", body: "This game is awesome!" })
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Not Found");
       });
   });
 
@@ -214,9 +214,18 @@ describe("POST: /api/reviews/:review_id/comments", () => {
     return request(app)
       .post("/api/reviews/3/comments")
       .send({ username: 10, body: 10 })
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("404: username not found", () => {
+    return request(app)
+      .post("/api/reviews/4/comments")
+      .send({ username: "bakrikhalifa", object: "This game is awesome!" })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
       });
   });
 });

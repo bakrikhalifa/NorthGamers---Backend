@@ -50,12 +50,9 @@ exports.getCommentsByID = (req, res, next) => {
 exports.postCommentByID = (req, res, next) => {
   const newComment = req.body;
   const { review_id } = req.params;
-  const promises = [
-    postCommentByIDData(review_id, newComment),
-    checkIfCommentsExist(review_id),
-  ];
-  Promise.all(promises)
-    .then(([newComment]) => {
+
+  postCommentByIDData(review_id, newComment)
+    .then((newComment) => {
       res.status(201).send(newComment);
     })
     .catch((err) => {
