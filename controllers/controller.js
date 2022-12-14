@@ -6,6 +6,7 @@ const {
   postCommentByID,
   postCommentByIDData,
   patchReviewByIDData,
+  getUsersData,
 } = require("../models/model");
 
 const { checkIfCommentsExist } = require("../models/models.reviews");
@@ -72,4 +73,10 @@ exports.patchReviewByID = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getUsers = (req, res, next) => {
+  getUsersData().then((users) => {
+    res.status(200).send(users);
+  });
 };

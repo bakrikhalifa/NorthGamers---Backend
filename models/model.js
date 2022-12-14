@@ -65,3 +65,9 @@ exports.patchReviewByIDData = (review_id, updatedReviewBody) => {
       return updatedReview[0];
     });
 };
+
+exports.getUsersData = () => {
+  return db.query(`SELECT * FROM users;`).then(({ rows: users }) => {
+    return users;
+  });
+};
