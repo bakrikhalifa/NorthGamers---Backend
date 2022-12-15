@@ -7,6 +7,7 @@ const {
   patchReviewByIDData,
   getUsersData,
   deleteCommentData,
+  endPointsJSONData,
 } = require("../models/model");
 
 const {
@@ -101,4 +102,10 @@ exports.deletecomment = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.endPointsJSON = (req, res) => {
+  endPointsJSONData().then((endpoints) => {
+    res.status(200).send({ endpoints });
+  });
 };
