@@ -5,7 +5,7 @@ const {
   getCommentsByIDData,
   postCommentByIDData,
   patchReviewByIDData,
-  getUsersData,
+  getUsersData, deleteCommentData
 } = require("../models/model");
 
 const {
@@ -90,3 +90,12 @@ exports.getUsers = (req, res, next) => {
     res.status(200).send(users);
   });
 };
+
+exports.deletecomment = (req, res, next) => {
+  const {comment_id} = req.params
+  deleteCommentData(comment_id).then(() => {
+    res.status(204).send()
+  }).catch(err => {
+    next(err)
+  })
+}

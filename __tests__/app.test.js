@@ -35,7 +35,7 @@ describe("GET api/categories", () => {
   });
 });
 
-describe.only("GET /api/reviews", () => {
+describe("GET /api/reviews", () => {
   test("200: should get all reviews by default descending", () => {
     return request(app)
       .get("/api/reviews")
@@ -220,7 +220,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
         });
       });
   });
-  test.only("200: valid article but comments do not exist for said article", () => {
+  test("200: valid article but comments do not exist for said article", () => {
     return request(app)
       .get("/api/reviews/1/comments")
       .expect(200)
@@ -403,6 +403,33 @@ describe("GET /api/users", () => {
             avatar_url: expect.any(String),
           });
         });
+      });
+  });
+});
+
+describe.only('DELETE: "/api/comments/:comment_id"', () => {
+  test("204: comment deleted succesfully", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("404: comment id valid but does not exist", () => {
+    return request(app)
+      .delete("/api/comments/40")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Not Found");
+      });
+  });
+  test("400: comment id format incorrect", () => {
+    return request(app)
+      .delete("/api/comments/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad Request");
       });
   });
 });
