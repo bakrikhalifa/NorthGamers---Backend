@@ -3,7 +3,6 @@ const {
   getReviewsData,
   getReviewByIDData,
   getCommentsByIDData,
-  postCommentByID,
   postCommentByIDData,
   patchReviewByIDData,
   getUsersData,
@@ -17,10 +16,14 @@ exports.getCategories = (req, res) => {
   });
 };
 
-exports.getReviews = (req, res) => {
-  getReviewsData().then((reviews) => {
-    res.status(200).send(reviews);
-  });
+exports.getReviews = (req, res, next) => {
+  getReviewsData(req.query)
+    .then((reviews) => {
+      res.status(200).send(reviews);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getReviewById = (req, res, next) => {
