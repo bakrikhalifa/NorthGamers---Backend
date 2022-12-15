@@ -35,7 +35,7 @@ describe("GET api/categories", () => {
   });
 });
 
-describe("GET /api/reviews", () => {
+describe.only("GET /api/reviews", () => {
   test("200: should get all reviews by default descending", () => {
     return request(app)
       .get("/api/reviews")
@@ -98,12 +98,12 @@ describe("GET /api/reviews", () => {
         expect(body.msg).toBe("Not Found");
       });
   });
-  test("404: should test if query category is spelt wrong ", () => {
+  test("200: should return empty array if category exists but there are no associated reviews", () => {
     return request(app)
-      .get("/api/reviews?ctegory=euro+game")
-      .expect(400)
+      .get("/api/reviews?category=children's+games")
+      .expect(200)
       .then(({ body }) => {
-        expect(body.msg).toBe("Bad Request");
+        expect(body).toEqual([]);
       });
   });
   test("200: should sort by query", () => {
@@ -220,7 +220,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
         });
       });
   });
-  test("200: valid article but comments do not exist for said article", () => {
+  test.only("200: valid article but comments do not exist for said article", () => {
     return request(app)
       .get("/api/reviews/1/comments")
       .expect(200)

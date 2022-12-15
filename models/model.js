@@ -60,23 +60,20 @@ exports.getReviewsData = (queryObj) => {
   return db
     .query(queryString, injectionParamArray)
     .then(({ rows: reviews }) => {
-      if (reviews.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not Found" });
-      }
       return reviews;
     });
 };
 
 exports.getReviewByIDData = (review_id) => {
-  return db
-    .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
-    .then(({ rows: review }) => {
-      if (review[0] === undefined) {
-        return Promise.reject({ status: 404, msg: "Not Found" });
-      } else {
-        return review[0];
-      }
-    });
+  const queryString = `SELECT reviews.*, COUNT (comment_id) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE reviews.review_id = $1 GROUP BY reviews.review_id`;
+
+  return db.query(queryString, [review_id]).then(({ rows: review }) => {
+    if (review[0] === undefined) {
+      return Promise.reject({ status: 404, msg: "Not Found" });
+    } else {
+      return review[0];
+    }
+  });
 };
 
 exports.getCommentsByIDData = (review_id) => {

@@ -8,7 +8,10 @@ const {
   getUsersData,
 } = require("../models/model");
 
-const { checkIfCommentsExist } = require("../models/models.reviews");
+const {
+  checkIfCommentsExist,
+  checkIfCategoryExists,
+} = require("../models/models.reviews");
 
 exports.getCategories = (req, res) => {
   getCategoriesData().then((categories) => {
@@ -17,8 +20,12 @@ exports.getCategories = (req, res) => {
 };
 
 exports.getReviews = (req, res, next) => {
-  getReviewsData(req.query)
-    .then((reviews) => {
+  const promises = [getReviewsData(req.query)];
+  if (req.query.category !== undefined) {
+    promises.push(checkIfCategoryExists(req.query));
+  }
+  Promise.all(promises)
+    .then(([reviews]) => {
       res.status(200).send(reviews);
     })
     .catch((err) => {
