@@ -7,7 +7,8 @@ const {
   getCommentsByID,
   postCommentByID,
   patchReviewByID,
-  getUsers, deletecomment
+  getUsers,
+  deletecomment,
 } = require("./controllers/controller");
 
 app.use(express.json());
@@ -26,7 +27,7 @@ app.patch("/api/reviews/:review_id", patchReviewByID);
 
 app.get("/api/users", getUsers);
 
-app.delete("/api/comments/:comment_id", deletecomment)
+app.delete("/api/comments/:comment_id", deletecomment);
 
 // custom error
 app.use((err, req, res, next) => {
