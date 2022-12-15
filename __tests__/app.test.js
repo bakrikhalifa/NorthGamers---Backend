@@ -18,6 +18,23 @@ describe("Test for incorrect path", () => {
   });
 });
 
+describe("GET api/categories", () => {
+  test("200: should succesfully get categories", () => {
+    return request(app)
+      .get("/api/categories")
+      .expect(200)
+      .then(({ body: categories }) => {
+        categories.forEach((category) => {
+          expect(category).toMatchObject({
+            slug: expect.any(String),
+            description: expect.any(String),
+          });
+        });
+        expect(categories.length).toBe(4);
+      });
+  });
+});
+
 describe("GET /api/reviews", () => {
   test("200: should get all reviews by default descending", () => {
     return request(app)
