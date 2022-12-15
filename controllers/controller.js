@@ -106,7 +106,6 @@ exports.deletecomment = (req, res, next) => {
 
 exports.endPointsJSON = (req, res) => {
   endPointsJSONData().then((endpoints) => {
-    const stringified = JSON.parse(endpoints)
-    res.status(200).send({ stringified });
+    res.status(200).send({ endpoints });
   });
 };
