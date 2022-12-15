@@ -35,7 +35,7 @@ describe("GET api/categories", () => {
   });
 });
 
-describe.only("GET /api/reviews", () => {
+describe("GET /api/reviews", () => {
   test("200: should get all reviews by default descending", () => {
     return request(app)
       .get("/api/reviews")
