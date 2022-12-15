@@ -6,24 +6,74 @@ exports.getCategoriesData = () => {
   });
 };
 
-exports.getReviewsData = () => {
+exports.getReviewsData = (queryObj) => {
+  const validSortByQueries = [
+    "title",
+    "designer",
+    "owner",
+    "review_img_url",
+    "review_body",
+    "category",
+    "created_at",
+    "votes",
+  ];
+
+  if (
+    !validSortByQueries.includes(queryObj.sort_by) &&
+    Object.keys(queryObj).length !== 0 &&
+    !queryObj.hasOwnProperty("category") &&
+    !queryObj.hasOwnProperty("order")
+  ) {
+    return Promise.reject({ status: 400, msg: "Bad Request", code: "42703" });
+  }
+
+  if (
+    !queryObj.hasOwnProperty("category") &&
+    Object.keys(queryObj).length !== 0 &&
+    !queryObj.hasOwnProperty("sort_by") &&
+    !queryObj.hasOwnProperty("order")
+  ) {
+    return Promise.reject({ status: 404, msg: "Not Found" });
+  }
+
+  let queryString = `SELECT * FROM reviews`;
+  const injectionParamArray = [];
+
+  if (queryObj.hasOwnProperty("category")) {
+    const categoryString = ` WHERE category = $1`;
+    queryString += categoryString;
+    injectionParamArray.push(queryObj.category);
+  }
+
+  if (queryObj.hasOwnProperty("sort_by")) {
+    const sortByString = ` ORDER BY ${queryObj.sort_by} desc;`;
+    queryString += sortByString;
+  } else {
+    const defaultSortBy = ` ORDER BY created_at desc`;
+    queryString += defaultSortBy;
+  }
+
+  if (queryObj.hasOwnProperty("order")) {
+    queryString = `SELECT * FROM reviews ORDER BY created_at ${queryObj.order}`;
+  }
+
   return db
-    .query(`SELECT * FROM reviews ORDER BY created_at desc;`)
+    .query(queryString, injectionParamArray)
     .then(({ rows: reviews }) => {
       return reviews;
     });
 };
 
 exports.getReviewByIDData = (review_id) => {
-  return db
-    .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
-    .then(({ rows: review }) => {
-      if (review[0] === undefined) {
-        return Promise.reject({ status: 404, msg: "Not Found" });
-      } else {
-        return review[0];
-      }
-    });
+  const queryString = `SELECT reviews.*, COUNT (comment_id) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE reviews.review_id = $1 GROUP BY reviews.review_id`;
+
+  return db.query(queryString, [review_id]).then(({ rows: review }) => {
+    if (review[0] === undefined) {
+      return Promise.reject({ status: 404, msg: "Not Found" });
+    } else {
+      return review[0];
+    }
+  });
 };
 
 exports.getCommentsByIDData = (review_id) => {

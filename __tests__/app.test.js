@@ -35,8 +35,8 @@ describe("GET api/categories", () => {
   });
 });
 
-describe("GET /api/reviews", () => {
-  test("200: should get all reviews by date descending", () => {
+describe.only("GET /api/reviews", () => {
+  test("200: should get all reviews by default descending", () => {
     return request(app)
       .get("/api/reviews")
       .expect(200)
@@ -69,6 +69,89 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: reviews }) => {
         expect(reviews.length).toBe(13);
+      });
+  });
+  test("200: accepts a category query", () => {
+    return request(app)
+      .get("/api/reviews?category=euro+game")
+      .expect(200)
+      .then(({ body: reviewsByCategory }) => {
+        reviewsByCategory.forEach((review) => {
+          expect(review).toMatchObject({
+            title: expect.any(String),
+            designer: expect.any(String),
+            owner: expect.any(String),
+            review_img_url: expect.any(String),
+            review_body: expect.any(String),
+            category: "euro game",
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+          });
+        });
+      });
+  });
+  test("404: should test if category is not found", () => {
+    return request(app)
+      .get("/api/reviews?category=euro")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("200: should return empty array if category exists but there are no associated reviews", () => {
+    return request(app)
+      .get("/api/reviews?category=children's+games")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual([]);
+      });
+  });
+  test("200: should sort by query", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=votes")
+      .expect(200)
+      .then(({ body: sortedBy }) => {
+        expect(sortedBy).toBeSortedBy("votes", { descending: true });
+      });
+  });
+  test("404: sort by spelt wrong", () => {
+    return request(app)
+      .get("/api/reviews?srot_by=votes")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid sort by query", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=test")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("200: should return correct result for querying order", () => {
+    return request(app)
+      .get("/api/reviews?order=asc")
+      .expect(200)
+      .then(({ body: reviews }) => {
+        expect(reviews).toBeSortedBy("created_at", { descending: false });
+      });
+  });
+  test("400: invalid order query", () => {
+    return request(app)
+      .get("/api/reviews?order=ascend")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: order spelt wrong", () => {
+    return request(app)
+      .get("/api/reviews?odrer=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });
@@ -137,7 +220,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
         });
       });
   });
-  test("200: valid article but comments do not exist for said article", () => {
+  test.only("200: valid article but comments do not exist for said article", () => {
     return request(app)
       .get("/api/reviews/1/comments")
       .expect(200)
@@ -219,13 +302,13 @@ describe("POST: /api/reviews/:review_id/comments", () => {
         expect(body.msg).toBe("Not Found");
       });
   });
-  test("404: username not found", () => {
+  test("400: username not found", () => {
     return request(app)
       .post("/api/reviews/4/comments")
       .send({ username: "bakrikhalifa", object: "This game is awesome!" })
-      .expect(404)
+      .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Not Found");
+        expect(body.msg).toBe("Bad Request");
       });
   });
 });
@@ -287,13 +370,13 @@ describe("PATCH: /api/reviews/:review_id", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
-  test("404: incorrect key on req body ", () => {
+  test("400: incorrect key on req body ", () => {
     return request(app)
       .patch("/api/reviews/3")
       .send({ votes: 2 })
-      .expect(404)
+      .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Not Found");
+        expect(body.msg).toBe("Bad Request");
       });
   });
   test("400: incorrect value on req body ", () => {

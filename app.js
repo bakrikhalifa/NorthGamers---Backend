@@ -28,7 +28,7 @@ app.get("/api/users", getUsers);
 
 // custom error
 app.use((err, req, res, next) => {
-  if (err.msg !== undefined) {
+  if (err.msg === "Not Found") {
     res.status(404).send({ msg: "Not Found" });
   } else {
     next(err);
@@ -37,9 +37,14 @@ app.use((err, req, res, next) => {
 
 // psql errors
 app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
+  if (
+    err.code === "22P02" ||
+    err.code === "42703" ||
+    err.code === "42601" ||
+    err.code === "23502"
+  ) {
     res.status(400).send({ msg: "Bad Request" });
-  } else if (err.code === "23503" || err.code === "23502") {
+  } else if (err.code === "23503") {
     res.status(404).send({ msg: "Not Found" });
   } else {
     next(err);
