@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const fs = require("fs/promises");
 
 exports.getCategoriesData = () => {
   return db.query(`SELECT * FROM categories;`).then(({ rows: categories }) => {
@@ -120,4 +121,27 @@ exports.getUsersData = () => {
   return db.query(`SELECT * FROM users;`).then(({ rows: users }) => {
     return users;
   });
+};
+
+exports.deleteCommentData = (comment_id) => {
+  return db
+    .query(
+      `DELETE FROM comments
+  WHERE comment_id = $1 RETURNING*;`,
+      [comment_id]
+    )
+    .then(({ rowCount }) => {
+      if (rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+      return true;
+    });
+};
+
+exports.endPointsJSONData = () => {
+  return fs
+    .readFile(`${__dirname}/../endpoints.json`, "utf-8")
+    .then((endpoints) => {
+      return JSON.parse(endpoints);
+    });
 };

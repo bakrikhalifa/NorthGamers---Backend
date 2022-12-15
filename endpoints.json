@@ -20,15 +20,111 @@
     "exampleResponse": {
       "reviews": [
         {
-          "title": "One Night Ultimate Werewolf",
-          "designer": "Akihisa Okui",
-          "owner": "happyamy2016",
-          "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-          "category": "hidden-roles",
-          "created_at": 1610964101251,
-          "votes": 5
+          "review_id": 13,
+          "title": "Settlers of Catan: Don't Settle For Less",
+          "category": "social deduction",
+          "designer": "Klaus Teuber",
+          "owner": "mallionaire",
+          "review_body": "You have stumbled across an uncharted island rich in natural resources, but you are not alone; other adventurers have come ashore too, and the race to settle the island of Catan has begun! Whether you exert military force, build a road to rival the Great Wall, trade goods with ships from the outside world, or some combination of all three, the aim is the same: to dominate the island. Will you prevail? Proceed strategically, trade wisely, and may the odds be in favour.",
+          "review_img_url": "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg",
+          "created_at": "1970-01-10T02:08:38.400Z",
+          "votes": 16
         }
       ]
     }
+  },
+  "GET /api/reviews/:review_id": {
+    "description": "serves a single review of the given review_id",
+    "queries": [],
+    "exampleResponse": {
+      "review": [
+        {
+          "review_id": 1,
+          "title": "Agricola",
+          "category": "euro game",
+          "designer": "Uwe Rosenberg",
+          "owner": "mallionaire",
+          "review_body": "Farmyard fun!",
+          "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          "created_at": "2021-01-18T10:00:20.514Z",
+          "votes": 1,
+          "comment_count": "0"
+        }
+      ]
+    }
+  },
+  "GET /api/reviews/:review_id/comments": {
+    "description": "serves up an array of objects consisting of all the comments from the input review id ",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 4,
+          "votes": 16,
+          "created_at": "2017-11-22T12:36:03.389Z",
+          "author": "bainesface",
+          "body": "EPIC board game!",
+          "review_id": 2
+        }
+      ]
+    }
+  },
+  "POST /api/reviews/:review_id/comments": {
+    "description": "serves up an object consisting of  the posted comment",
+    "queries": [],
+    "Request Body": {
+      "format": "an object containing the correct body information - { username: a valid username in the database in the form of a string, body: a paragraph of the comment in the form of a string}.",
+      "example": { "username": "mallionaire", "body": "This game is awesome!" }
+    },
+    "exampleResponse": {
+      "comment_id": 7,
+      "body": "This game is awesome!",
+      "review_id": 3,
+      "author": "mallionaire",
+      "votes": 0,
+      "created_at": "2022-12-15T20:16:13.647Z"
+    }
+  },
+  "PATCH /api/reviews/:review_id": {
+    "description": "updates the vote in the given review_id review",
+    "queries": [],
+    "Request Body Guide": {
+      "format": "an object containing the correct body information - { inc_votes: a number to either increment (e.g 2) by or decrement (e.g -2) by }.",
+      "example": { "inc_votes": 2 }
+    },
+    "exampleResponse": {
+      "updatedReview": [
+        {
+          "review_id": 3,
+          "title": "Ultimate Werewolf",
+          "category": "social deduction",
+          "designer": "Akihisa Okui",
+          "owner": "bainesface",
+          "review_body": "We couldn't find the werewolf!",
+          "review_img_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          "created_at": "2021-01-18T10:01:41.251Z",
+          "votes": 7
+        }
+      ]
+    }
+  },
+
+  "GET /api/users": {
+    "description": "serves up an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "dav3rid",
+          "name": "dave",
+          "avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes the comment that the user wants deleting resulting in an empty response and a 204 status code",
+    "queries": [],
+    "exampleResponse": {}
   }
 }

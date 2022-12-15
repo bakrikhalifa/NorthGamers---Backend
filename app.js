@@ -8,6 +8,8 @@ const {
   postCommentByID,
   patchReviewByID,
   getUsers,
+  deletecomment,
+  endPointsJSON,
 } = require("./controllers/controller");
 
 app.use(express.json());
@@ -25,6 +27,10 @@ app.post("/api/reviews/:review_id/comments", postCommentByID);
 app.patch("/api/reviews/:review_id", patchReviewByID);
 
 app.get("/api/users", getUsers);
+
+app.delete("/api/comments/:comment_id", deletecomment);
+
+app.get("/api", endPointsJSON);
 
 // custom error
 app.use((err, req, res, next) => {
