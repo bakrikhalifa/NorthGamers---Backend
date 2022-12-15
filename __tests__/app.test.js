@@ -159,11 +159,11 @@ describe("GET: /api/reviews", () => {
 describe('GET: "/api/reviews/:review_id"', () => {
   test("200: should get review by correct review id", () => {
     return request(app)
-      .get("/api/reviews/1")
+      .get("/api/reviews/2")
       .expect(200)
       .then(({ body: review }) => {
         expect(review).toMatchObject({
-          review_id: 1,
+          review_id: 2,
           title: expect.any(String),
           category: expect.any(String),
           designer: expect.any(String),
@@ -172,6 +172,7 @@ describe('GET: "/api/reviews/:review_id"', () => {
           review_img_url: expect.any(String),
           created_at: expect.any(String),
           votes: expect.any(Number),
+          comment_count: expect.any(String),
         });
       });
   });
