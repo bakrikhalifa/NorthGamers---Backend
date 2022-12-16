@@ -14,6 +14,8 @@ const {
 
 app.use(express.json());
 
+app.set('json spaces', 2) 
+
 app.get("/api/categories", getCategories);
 
 app.get("/api/reviews", getReviews);
