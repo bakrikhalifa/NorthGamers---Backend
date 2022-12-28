@@ -1,25 +1,15 @@
 const {
-  getCategoriesData,
   getReviewsData,
   getReviewByIDData,
+  patchReviewByIDData,
   getCommentsByIDData,
   postCommentByIDData,
-  patchReviewByIDData,
-  getUsersData,
-  deleteCommentData,
-  endPointsJSONData,
-} = require("../models/model");
-
+  postReviewData,
+} = require("../models/reviews.model");
 const {
-  checkIfCommentsExist,
   checkIfCategoryExists,
-} = require("../models/models.reviews");
-
-exports.getCategories = (req, res) => {
-  getCategoriesData().then((categories) => {
-    res.status(200).send(categories);
-  });
-};
+  checkIfCommentsExist,
+} = require("../models/checkIf.model");
 
 exports.getReviews = (req, res, next) => {
   const promises = [getReviewsData(req.query)];
@@ -27,8 +17,22 @@ exports.getReviews = (req, res, next) => {
     promises.push(checkIfCategoryExists(req.query));
   }
   Promise.all(promises)
-    .then(([reviews]) => {
-      res.status(200).send(reviews);
+    .then((response) => {
+      if (response[0].hasOwnProperty("queryResults")) {
+        res
+          .status(200)
+          .send({
+            total_count: response[0].reviews.length,
+            queryResults: response[0].queryResults,
+          });
+      } else {
+        res
+          .status(200)
+          .send({
+            total_count: response[0].reviews.length,
+            reviews: response[0].reviews,
+          });
+      }
     })
     .catch((err) => {
       next(err);
@@ -40,6 +44,19 @@ exports.getReviewById = (req, res, next) => {
   getReviewByIDData(review_id)
     .then((review) => {
       res.status(200).send(review);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.patchReviewByID = (req, res, next) => {
+  const updatedReviewBody = req.body;
+  const { review_id } = req.params;
+
+  patchReviewByIDData(review_id, updatedReviewBody)
+    .then((updatedReview) => {
+      res.status(200).send(updatedReview);
     })
     .catch((err) => {
       next(err);
@@ -74,38 +91,13 @@ exports.postCommentByID = (req, res, next) => {
     });
 };
 
-exports.patchReviewByID = (req, res, next) => {
-  const updatedReviewBody = req.body;
-  const { review_id } = req.params;
-
-  patchReviewByIDData(review_id, updatedReviewBody)
-    .then((updatedReview) => {
-      res.status(200).send(updatedReview);
+exports.postReview = (req, res, next) => {
+  const newReview = req.body;
+  postReviewData(newReview)
+    .then((reviewWithCount) => {
+      res.status(201).send(reviewWithCount);
     })
     .catch((err) => {
       next(err);
     });
-};
-
-exports.getUsers = (req, res, next) => {
-  getUsersData().then((users) => {
-    res.status(200).send(users);
-  });
-};
-
-exports.deletecomment = (req, res, next) => {
-  const { comment_id } = req.params;
-  deleteCommentData(comment_id)
-    .then(() => {
-      res.status(204).send();
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-exports.endPointsJSON = (req, res) => {
-  endPointsJSONData().then((endpoints) => {
-    res.status(200).send({ endpoints });
-  });
 };

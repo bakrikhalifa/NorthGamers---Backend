@@ -1,67 +1,19 @@
 const express = require("express");
 const app = express();
-const {
-  getCategories,
-  getReviews,
-  getReviewById,
-  getCommentsByID,
-  postCommentByID,
-  patchReviewByID,
-  getUsers,
-  deletecomment,
-  endPointsJSON,
-} = require("./controllers/controller");
+const {psqlErrors, customErrors, incorrectPathError} = require('./controllers/errors.controllers')
+const apiRouter = require('./routers/api.router')
 
 app.use(express.json());
 
+app.use('/api', apiRouter)
+
 app.set('json spaces', 2) 
 
-app.get("/api/categories", getCategories);
+//errors
+app.use(customErrors);
 
-app.get("/api/reviews", getReviews);
+app.use(psqlErrors);
 
-app.get("/api/reviews/:review_id", getReviewById);
-
-app.get("/api/reviews/:review_id/comments", getCommentsByID);
-
-app.post("/api/reviews/:review_id/comments", postCommentByID);
-
-app.patch("/api/reviews/:review_id", patchReviewByID);
-
-app.get("/api/users", getUsers);
-
-app.delete("/api/comments/:comment_id", deletecomment);
-
-app.get("/api", endPointsJSON);
-
-// custom error
-app.use((err, req, res, next) => {
-  if (err.msg === "Not Found") {
-    res.status(404).send({ msg: "Not Found" });
-  } else {
-    next(err);
-  }
-});
-
-// psql errors
-app.use((err, req, res, next) => {
-  if (
-    err.code === "22P02" ||
-    err.code === "42703" ||
-    err.code === "42601" ||
-    err.code === "23502"
-  ) {
-    res.status(400).send({ msg: "Bad Request" });
-  } else if (err.code === "23503") {
-    res.status(404).send({ msg: "Not Found" });
-  } else {
-    next(err);
-  }
-});
-
-//incorrect path error
-app.all("*", (req, res) => {
-  res.status(404).send({ msg: "Path not found" });
-});
+app.all("*", incorrectPathError);
 
 module.exports = app;

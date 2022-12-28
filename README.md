@@ -31,8 +31,8 @@ Tools used as part of this project:
 Minimum versions of Node.js and Postgres needed to run this project,
 
 ```bash
-Node: 17x
-Postgres: 8.7.x
+Node: v19.0.0
+Postgres: v12.12
 ```
 
 1. Clone the repository to your local machine. To do this, open up your terminal and run this command:

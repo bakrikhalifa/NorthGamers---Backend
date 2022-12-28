@@ -41,7 +41,9 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body: reviews }) => {
-        expect(reviews).toBeSortedBy("created_at", { descending: true });
+        expect(reviews.reviews).toBeSortedBy("created_at", {
+          descending: true,
+        });
       });
   });
   test("200: should get all reviews in correct format", () => {
@@ -49,7 +51,7 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body: reviews }) => {
-        reviews.forEach((review) => {
+        reviews.reviews.forEach((review) => {
           expect(review).toMatchObject({
             title: expect.any(String),
             designer: expect.any(String),
@@ -68,7 +70,7 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body: reviews }) => {
-        expect(reviews.length).toBe(13);
+        expect(reviews.reviews.length).toBe(13);
       });
   });
   test("200: accepts a category query", () => {
@@ -76,7 +78,7 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews?category=euro+game")
       .expect(200)
       .then(({ body: reviewsByCategory }) => {
-        reviewsByCategory.forEach((review) => {
+        reviewsByCategory.reviews.forEach((review) => {
           expect(review).toMatchObject({
             title: expect.any(String),
             designer: expect.any(String),
@@ -103,7 +105,7 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews?category=children's+games")
       .expect(200)
       .then(({ body }) => {
-        expect(body).toEqual([]);
+        expect(body.reviews).toEqual([]);
       });
   });
   test("200: should sort by query", () => {
@@ -111,10 +113,10 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews?sort_by=votes")
       .expect(200)
       .then(({ body: sortedBy }) => {
-        expect(sortedBy).toBeSortedBy("votes", { descending: true });
+        expect(sortedBy.reviews).toBeSortedBy("votes", { descending: true });
       });
   });
-  test("404: sort by spelt wrong", () => {
+  test("400: sort by spelt wrong", () => {
     return request(app)
       .get("/api/reviews?srot_by=votes")
       .expect(400)
@@ -135,7 +137,9 @@ describe("GET: /api/reviews", () => {
       .get("/api/reviews?order=asc")
       .expect(200)
       .then(({ body: reviews }) => {
-        expect(reviews).toBeSortedBy("created_at", { descending: false });
+        expect(reviews.reviews).toBeSortedBy("created_at", {
+          descending: false,
+        });
       });
   });
   test("400: invalid order query", () => {
@@ -149,6 +153,62 @@ describe("GET: /api/reviews", () => {
   test("400: order spelt wrong", () => {
     return request(app)
       .get("/api/reviews?odrer=asc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("200: should return default limit of 10 with p query", () => {
+    return request(app)
+      .get("/api/reviews?limit&p=1")
+      .expect(200)
+      .then(({ body: limitReviews }) => {
+        expect(limitReviews.queryResults).toHaveLength(10);
+      });
+  });
+  test("200: should return default limit of 10 with p query", () => {
+    return request(app)
+      .get("/api/reviews?limit=5&p=2")
+      .expect(200)
+      .then(({ body: limitReviews }) => {
+        expect(limitReviews.queryResults).toHaveLength(5);
+      });
+  });
+  test("200: should return article count", () => {
+    return request(app)
+      .get("/api/reviews?limit=5&p=2")
+      .expect(200)
+      .then(({ body: limitReviews }) => {
+        expect(limitReviews.total_count).toEqual(13);
+      });
+  });
+  test("400: limit spelt wrong", () => {
+    return request(app)
+      .get("/api/reviews?lmit=5&p=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid limit query", () => {
+    return request(app)
+      .get("/api/reviews?limit=ten&p=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: p spelt wrong query", () => {
+    return request(app)
+      .get("/api/reviews?limit=5&t=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid p query", () => {
+    return request(app)
+      .get("/api/reviews?limit=5&t=ten")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad Request");
@@ -442,6 +502,180 @@ describe(" GET: /api", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.endpoints.hasOwnProperty("GET /api")).toBe(true);
+      });
+  });
+});
+
+describe("GET: /api/users/:username", () => {
+  test("200: should get username", () => {
+    return request(app)
+      .get("/api/users/mallionaire")
+      .expect(200)
+      .then(({ body: username }) => {
+        expect(username).toMatchObject({
+          username: "mallionaire",
+          name: "haz",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
+      });
+  });
+
+  test("404: correct id format but invalid id", () => {
+    return request(app)
+      .get("/api/users/bakri")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("400: incorrect id format", () => {
+    return request(app)
+      .get("/api/users/900")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+});
+
+describe("PATCH: /api/comments/:comment_id", () => {
+  test("200: should return updated comment if req body wants to add", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 2 })
+      .expect(200)
+      .then(({ body: updatedComment }) => {
+        expect(updatedComment).toMatchObject({
+          review_id: 1,
+          body: expect.any(String),
+          votes: 18,
+          author: expect.any(String),
+          review_id: 2,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("200: should return updated comment if req body wants to subtract", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: -2 })
+      .expect(200)
+      .then(({ body: updatedComment }) => {
+        expect(updatedComment).toMatchObject({
+          review_id: 1,
+          body: expect.any(String),
+          votes: 14,
+          author: expect.any(String),
+          review_id: 2,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("404: valid review id format but id does not exist ", () => {
+    return request(app)
+      .patch("/api/comments/20")
+      .send({ inc_votes: 2 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("400: invalid review id format ", () => {
+    return request(app)
+      .patch("/api/comments/banana")
+      .send({ inc_votes: 2 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: incorrect key on req body ", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ votes: 2 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: incorrect value on req body ", () => {
+    return request(app)
+      .patch("/api/comments/3")
+      .send({ inc_votes: "Ten" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("POST: /api/reviews", () => {
+  test("201: get posted review", () => {
+    return request(app)
+      .post("/api/reviews")
+      .send({
+        title: "COD",
+        designer: "Bakri Khalifa",
+        owner: "mallionaire",
+        review_body: "Shooting fun!",
+        category: "euro game",
+      })
+      .expect(201)
+      .then(({ body: review }) => {
+        expect(review).toMatchObject({
+          review_id: expect.any(Number),
+          title: expect.any(String),
+          category: expect.any(String),
+          designer: expect.any(String),
+          owner: expect.any(String),
+          review_body: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          comment_count: expect.any(String),
+        });
+      });
+  });
+  test("400: incorrect keys on req body", () => {
+    return request(app)
+      .post("/api/reviews")
+      .send({
+        gameTitle: "COD",
+        designer: "Bakri Khalifa",
+        owner: "mallionaire",
+        review_body: "Shooting fun!",
+        category: "euro game",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing keys on req body", () => {
+    return request(app)
+      .post("/api/reviews")
+      .send({
+        title: "COD",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("400: invalid value on request body", () => {
+    return request(app)
+      .post("/api/reviews")
+      .send({
+        title: "COD",
+        designer: "Bakri Khalifa",
+        owner: 10,
+        review_body: "Shooting fun!",
+        category: "euro game",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
       });
   });
 });
