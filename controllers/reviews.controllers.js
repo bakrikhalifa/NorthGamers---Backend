@@ -5,6 +5,7 @@ const {
   getCommentsByIDData,
   postCommentByIDData,
   postReviewData,
+  deleteReviewByIDData,
 } = require("../models/reviews.model");
 const {
   checkIfCategoryExists,
@@ -19,19 +20,15 @@ exports.getReviews = (req, res, next) => {
   Promise.all(promises)
     .then((response) => {
       if (response[0].hasOwnProperty("queryResults")) {
-        res
-          .status(200)
-          .send({
-            total_count: response[0].reviews.length,
-            queryResults: response[0].queryResults,
-          });
+        res.status(200).send({
+          total_count: response[0].reviews.length,
+          queryResults: response[0].queryResults,
+        });
       } else {
-        res
-          .status(200)
-          .send({
-            total_count: response[0].reviews.length,
-            reviews: response[0].reviews,
-          });
+        res.status(200).send({
+          total_count: response[0].reviews.length,
+          reviews: response[0].reviews,
+        });
       }
     })
     .catch((err) => {
@@ -66,7 +63,7 @@ exports.patchReviewByID = (req, res, next) => {
 exports.getCommentsByID = (req, res, next) => {
   const { review_id } = req.params;
   const promises = [
-    getCommentsByIDData(review_id),
+    getCommentsByIDData(review_id, req.query),
     checkIfCommentsExist(review_id),
   ];
   Promise.all(promises)
@@ -96,6 +93,17 @@ exports.postReview = (req, res, next) => {
   postReviewData(newReview)
     .then((reviewWithCount) => {
       res.status(201).send(reviewWithCount);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.deleteReviewID = (req, res, next) => {
+  const { review_id } = req.params;
+  deleteReviewByIDData(review_id)
+    .then((deleted) => {
+      res.status(204).send({});
     })
     .catch((err) => {
       next(err);

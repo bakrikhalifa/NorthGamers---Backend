@@ -1,6 +1,6 @@
 const express = require('express')
 reviewsRouter = express.Router()
-const {getReviews, getReviewById, patchReviewByID, getCommentsByID, postCommentByID, postReview} = require('../controllers/reviews.controllers')
+const {getReviews, getReviewById, patchReviewByID, getCommentsByID, postCommentByID, postReview, deleteReviewID} = require('../controllers/reviews.controllers')
 
 reviewsRouter
     .route("/")
@@ -11,6 +11,7 @@ reviewsRouter
     .route("/:review_id")
     .get(getReviewById)
     .patch(patchReviewByID)
+    .delete(deleteReviewID)
 
 reviewsRouter
     .route("/:review_id/comments")

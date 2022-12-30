@@ -115,14 +115,46 @@ exports.patchReviewByIDData = (review_id, updatedReviewBody) => {
     });
 };
 
-exports.getCommentsByIDData = (review_id) => {
+exports.getCommentsByIDData = (review_id, queryObj) => {
+  if (
+    Object.keys(queryObj).length !== 0 &&
+    (!queryObj.hasOwnProperty("limit") || !queryObj.hasOwnProperty("p"))
+  ) {
+    return Promise.reject({ status: 400, msg: "Bad Request", code: "42703" });
+  }
+
+  if (queryObj.hasOwnProperty("limit") && queryObj.limit.length === 0) {
+    queryObj.limit = 10;
+  }
+
   return db
     .query(
       `SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body, comments.review_id FROM comments JOIN reviews ON reviews.review_id = comments.review_id WHERE reviews.review_id = $1 AND comments.review_id = $1 ORDER BY comments.created_at desc;`,
       [review_id]
     )
     .then(({ rows: comments }) => {
-      return comments;
+      if (queryObj.hasOwnProperty("limit") && queryObj.hasOwnProperty("p")) {
+        const page = queryObj.p;
+        const limit = queryObj.limit;
+        const startIndexOfReviews = (page - 1) * limit;
+        const endIndexOfReviews = page * limit;
+        const queryResults = comments.slice(
+          startIndexOfReviews,
+          endIndexOfReviews
+        );
+
+        if (queryResults.length === 0) {
+          return Promise.reject({
+            status: 400,
+            msg: "Bad Request",
+            code: "42703",
+          });
+        }
+
+        return queryResults;
+      } else {
+        return comments;
+      }
     });
 };
 
@@ -159,6 +191,30 @@ exports.postReviewData = (newReview) => {
   return Promise.all([postReview, getReviewWithCount]).then(
     ([postReview, getReviewWithCount]) => {
       return getReviewWithCount.rows[0];
+    }
+  );
+};
+
+exports.deleteReviewByIDData = (review_id) => {
+  const deleteFromComments = db.query(
+    `DELETE FROM comments
+  WHERE review_id = $1 RETURNING*;`,
+    [review_id]
+  );
+
+  const deleteFromReviews = db.query(
+    `DELETE FROM reviews
+  WHERE review_id = $1 RETURNING*;`,
+    [review_id]
+  );
+
+  return Promise.all([deleteFromComments, deleteFromReviews]).then(
+    ([deleteFromComments, deleteFromReviews]) => {
+      if (deleteFromReviews.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      } else {
+      }
+      return;
     }
   );
 };

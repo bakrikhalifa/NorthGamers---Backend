@@ -306,6 +306,46 @@ describe("GET: /api/reviews/:review_id/comments", () => {
         expect(body.msg).toBe("Bad Request");
       });
   });
+  test("200: should return limit with p query", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?limit=1&p=1")
+      .expect(200)
+      .then(({ body: comments }) => {
+        expect(comments.comments).toHaveLength(1);
+      });
+  });
+  test("400: limit spelt wrong", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?lmit&p=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid limit query", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?limit=ten&p=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: p spelt wrong query", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?limit=1&t=1")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: invalid p query", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?limit=1&p=one")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
 });
 
 describe("POST: /api/reviews/:review_id/comments", () => {
@@ -546,6 +586,7 @@ describe("PATCH: /api/comments/:comment_id", () => {
       .send({ inc_votes: 2 })
       .expect(200)
       .then(({ body: updatedComment }) => {
+        console.log(updatedComment);
         expect(updatedComment).toMatchObject({
           review_id: 1,
           body: expect.any(String),
@@ -663,19 +704,87 @@ describe("POST: /api/reviews", () => {
       });
   });
 
-  test("400: invalid value on request body", () => {
+  test("404: username(owner) not found", () => {
     return request(app)
       .post("/api/reviews")
       .send({
         title: "COD",
         designer: "Bakri Khalifa",
-        owner: 10,
+        owner: "10",
         review_body: "Shooting fun!",
         category: "euro game",
       })
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Not Found");
+      });
+  });
+});
+
+describe("POST: /api/categories", () => {
+  test.only("201: get posted category", () => {
+    return request(app)
+      .post("/api/categories")
+      .send({
+        slug: "FPS game",
+        description: "Game involving shooting",
+      })
+      .expect(201)
+      .then(({ body: category }) => {
+        console.log(category);
+        expect(category).toMatchObject({
+          slug: "FPS game",
+          description: "Game involving shooting",
+        });
+      });
+  });
+  test("400: incorrect keys on req body", () => {
+    return request(app)
+      .post("/api/categories")
+      .send({
+        bug: "FPS game",
+        description: "Game involving shooting",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+  test("400: missing keys on req body", () => {
+    return request(app)
+      .post("/api/categories")
+      .send({
+        description: "Game involving shooting",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+});
+describe('DELETE: "/api/reviews/:review_id"', () => {
+  test("204: review deleted succesfully", () => {
+    return request(app)
+      .delete("/api/reviews/3")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("404: comment id valid but does not exist", () => {
+    return request(app)
+      .delete("/api/reviews/40")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Not Found");
+      });
+  });
+  test("400: comment id format incorrect", () => {
+    return request(app)
+      .delete("/api/reviews/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toEqual("Bad Request");
       });
   });
 });
