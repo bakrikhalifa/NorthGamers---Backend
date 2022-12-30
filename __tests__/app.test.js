@@ -586,7 +586,6 @@ describe("PATCH: /api/comments/:comment_id", () => {
       .send({ inc_votes: 2 })
       .expect(200)
       .then(({ body: updatedComment }) => {
-        console.log(updatedComment);
         expect(updatedComment).toMatchObject({
           review_id: 1,
           body: expect.any(String),
@@ -722,7 +721,7 @@ describe("POST: /api/reviews", () => {
 });
 
 describe("POST: /api/categories", () => {
-  test.only("201: get posted category", () => {
+  test("201: get posted category", () => {
     return request(app)
       .post("/api/categories")
       .send({
@@ -731,7 +730,6 @@ describe("POST: /api/categories", () => {
       })
       .expect(201)
       .then(({ body: category }) => {
-        console.log(category);
         expect(category).toMatchObject({
           slug: "FPS game",
           description: "Game involving shooting",
