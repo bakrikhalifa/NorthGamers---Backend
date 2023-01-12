@@ -161,7 +161,7 @@
     "description": "serves up an object consisting of  the posted review",
     "queries": [],
     "Request Body": {
-      "format": "an object containing the correct body information - { title: game title, designer: creator of the game, owner: the creator of the review, review_body: description of the game, category: valid category which is also in the category table }.",
+      "format": "an object containing the correct body information - { title: title of game, designer: creator of the game, owner: the creator of the review, review_body: description of the game, category: valid category which is also in the category table }.",
       "example": {
         "title": "COD",
         "designer": "Bakri Khalifa",
