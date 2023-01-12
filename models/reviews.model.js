@@ -11,6 +11,7 @@ exports.getReviewsData = (queryObj) => {
     "category",
     "created_at",
     "votes",
+    "comment_count",
   ];
 
   if (
@@ -33,12 +34,17 @@ exports.getReviewsData = (queryObj) => {
     return Promise.reject({ status: 404, msg: "Not Found" });
   }
 
-  let queryString = `SELECT * FROM reviews`;
+  let queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+  FROM reviews
+  LEFT JOIN comments ON reviews.review_id = comments.review_id
+  GROUP BY reviews.review_id`;
   const injectionParamArray = [];
 
   if (queryObj.hasOwnProperty("category")) {
-    const categoryString = ` WHERE category = $1`;
-    queryString += categoryString;
+    queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+    FROM reviews
+    LEFT JOIN comments ON reviews.review_id = comments.review_id  WHERE category = $1
+    GROUP BY reviews.review_id`;
     injectionParamArray.push(queryObj.category);
   }
 
