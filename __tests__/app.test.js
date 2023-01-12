@@ -116,6 +116,14 @@ describe("GET: /api/reviews", () => {
         expect(sortedBy.reviews).toBeSortedBy("votes", { descending: true });
       });
   });
+  test("200: should sort by query and order", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=votes&order=asc")
+      .expect(200)
+      .then(({ body: sortedBy }) => {
+        expect(sortedBy.reviews).toBeSortedBy("votes", { descending: false });
+      });
+  });
   test("400: sort by spelt wrong", () => {
     return request(app)
       .get("/api/reviews?srot_by=votes")

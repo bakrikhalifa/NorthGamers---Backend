@@ -13,66 +13,69 @@ exports.getReviewsData = (queryObj) => {
     "votes",
     "comment_count",
   ];
-
+  
   if (
     !validSortByQueries.includes(queryObj.sort_by) &&
     Object.keys(queryObj).length !== 0 &&
     !queryObj.hasOwnProperty("category") &&
     !queryObj.hasOwnProperty("order") &&
     (!queryObj.hasOwnProperty("limit") || !queryObj.hasOwnProperty("p"))
-  ) {
-    return Promise.reject({ status: 400, msg: "Bad Request", code: "42703" });
-  }
+    ) {
+      return Promise.reject({ status: 400, msg: "Bad Request", code: "42703" });
+    }
+    
+    if (
+      !queryObj.hasOwnProperty("category") &&
+      Object.keys(queryObj).length !== 0 &&
+      !queryObj.hasOwnProperty("sort_by") &&
+      !queryObj.hasOwnProperty("order") &&
+      (!queryObj.hasOwnProperty("limit") || !queryObj.hasOwnProperty("p"))
+      ) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+      
+      let queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+      FROM reviews
+      LEFT JOIN comments ON reviews.review_id = comments.review_id
+      GROUP BY reviews.review_id`;
+      const injectionParamArray = [];
+      
+      if (queryObj.hasOwnProperty("category")) {
+        queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+        FROM reviews
+        LEFT JOIN comments ON reviews.review_id = comments.review_id  WHERE category = $1
+        GROUP BY reviews.review_id`;
+        injectionParamArray.push(queryObj.category);
+      }
+      
+      
+      
+      if (queryObj.hasOwnProperty("sort_by")) {
+        const sortByString = ` ORDER BY ${queryObj.sort_by} desc;`;
+        queryString += sortByString;
+      } else {
+        const defaultSortBy = ` ORDER BY created_at desc`;
+        queryString += defaultSortBy;
+      }
+      
+      
+      if (queryObj.hasOwnProperty("order")) {
+        queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+        FROM reviews
+        LEFT JOIN comments ON reviews.review_id = comments.review_id
+        GROUP BY reviews.review_id ORDER BY created_at ${queryObj.order}`;
+      }
 
-  if (
-    !queryObj.hasOwnProperty("category") &&
-    Object.keys(queryObj).length !== 0 &&
-    !queryObj.hasOwnProperty("sort_by") &&
-    !queryObj.hasOwnProperty("order") &&
-    (!queryObj.hasOwnProperty("limit") || !queryObj.hasOwnProperty("p"))
-  ) {
-    return Promise.reject({ status: 404, msg: "Not Found" });
-  }
-
-  let queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
-  FROM reviews
-  LEFT JOIN comments ON reviews.review_id = comments.review_id
-  GROUP BY reviews.review_id`;
-  const injectionParamArray = [];
-
-  if (queryObj.hasOwnProperty("category")) {
-    queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
-    FROM reviews
-    LEFT JOIN comments ON reviews.review_id = comments.review_id  WHERE category = $1
-    GROUP BY reviews.review_id`;
-    injectionParamArray.push(queryObj.category);
-  }
-
-  if (queryObj.hasOwnProperty("sort_by")) {
-    const sortByString = ` ORDER BY ${queryObj.sort_by} desc;`;
-    queryString += sortByString;
-  } else {
-    const defaultSortBy = ` ORDER BY created_at desc`;
-    queryString += defaultSortBy;
-  }
-
-  if (queryObj.hasOwnProperty("order") && queryObj.hasOwnProperty("sort_by")) {
-    queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
-    FROM reviews
-    LEFT JOIN comments ON reviews.review_id = comments.review_id
-    GROUP BY reviews.review_id ORDER BY ${queryObj.sort_by} ${queryObj.order}`;
-  }
-
-  if (queryObj.hasOwnProperty("order")) {
-    queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
-    FROM reviews
-    LEFT JOIN comments ON reviews.review_id = comments.review_id
-    GROUP BY reviews.review_id ORDER BY created_at ${queryObj.order}`;
-  }
-
-  if (queryObj.hasOwnProperty("limit") && queryObj.limit.length === 0) {
-    queryObj.limit = 10;
-  }
+      if (queryObj.hasOwnProperty("limit") && queryObj.limit.length === 0) {
+        queryObj.limit = 10;
+      }
+      
+      if (queryObj.hasOwnProperty("order") && queryObj.hasOwnProperty("sort_by")) {
+        queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+        FROM reviews
+        LEFT JOIN comments ON reviews.review_id = comments.review_id
+        GROUP BY reviews.review_id ORDER BY ${queryObj.sort_by} ${queryObj.order}`;
+      }
 
   return db
     .query(queryString, injectionParamArray)
