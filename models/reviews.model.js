@@ -56,8 +56,18 @@ exports.getReviewsData = (queryObj) => {
     queryString += defaultSortBy;
   }
 
+  if (queryObj.hasOwnProperty("order") && queryObj.hasOwnProperty("sort_by")) {
+    queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+    FROM reviews
+    LEFT JOIN comments ON reviews.review_id = comments.review_id
+    GROUP BY reviews.review_id ORDER BY ${queryObj.sort_by} ${queryObj.order}`;
+  }
+
   if (queryObj.hasOwnProperty("order")) {
-    queryString = `SELECT * FROM reviews ORDER BY created_at ${queryObj.order}`;
+    queryString = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, review_img_url, reviews.review_body, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) as comment_count
+    FROM reviews
+    LEFT JOIN comments ON reviews.review_id = comments.review_id
+    GROUP BY reviews.review_id ORDER BY created_at ${queryObj.order}`;
   }
 
   if (queryObj.hasOwnProperty("limit") && queryObj.limit.length === 0) {
