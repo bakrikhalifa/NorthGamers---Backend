@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Hello and welcome to my NC Games API that I have created as part of my backend week-long project at Northcoders. Enclosed are step by step instructions on how to run and implement the code that I have built for this API. 
+Welcome to the NorthGamers API, a game reviews database API that I have developed as part of my full-stack software developer bootcamp at Northcoders. The API provides users with an easy-to-use interface for accessing game reviews and comments. This README will guide you through the process of setting up and running the API locally on your machine.
 
 As a starting point, please feel free to explore all the possible endpoints on the API: https://bakrisncgames.onrender.com/api. Before accessing the link, I would recommend downloading the add-on JSON Formatter on Chrome https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en for better viewing purposes, or any other equivalent JSON formatting add-on for your specific browser.
 
