@@ -89,6 +89,6 @@ node run seed
 npm test
 ```
 
-If all the tests have passed :white_check_mark:, congragulations! You have succesfully completed the setup. :partying_face:	:tada:
+If all the tests have passed :white_check_mark:, congratulations! You have succesfully completed the setup. :partying_face:	:tada:
 
 Thank you so much to all the tutors at Northcoders who have helped during the proccess of building this project. 
