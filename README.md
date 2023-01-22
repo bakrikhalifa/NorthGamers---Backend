@@ -74,13 +74,13 @@ Now that both .env files are created, we will need to run some scripts to get th
 1. Run this command to create the databases on your machine:
 
 ```bash
-node run setup-dbs
+npm run setup-dbs
 ```
 
 2. You will now need to seed the databases by running this command:
 
 ```bash
-node run seed
+npm run seed
 ```
 
 3. The final step now is to check if everything was set up correctly. To do this, run this command and watch those green ticks come in!
